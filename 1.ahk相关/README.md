@@ -1,6 +1,6 @@
-# 0.AHK2Manager_x64 多脚本管理
-# 1.EngComma_swich 输入法自动切换英文标点
-# 2.Cubase_ShiftScrollInverse Cubase下shift+鼠标滚轮反转
+##### 0.AHK2Manager_x64 多脚本管理
+##### 1.EngComma_swich 输入法自动切换英文标点
+##### 2.Cubase_ShiftScrollInverse Cubase下shift+鼠标滚轮反转
 
 
 一些可能有的狂暴吐槽可无视
