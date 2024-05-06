@@ -1,6 +1,7 @@
 #### 0.AHK2Manager_x64 多脚本管理
 #### 1.EngComma_swich 输入法自动切换英文标点
 #### 2.Cubase_ShiftScrollInverse Cubase下shift+鼠标滚轮反转
+#### 3.AlwaysCHS
 
 
 一些可能有的狂暴吐槽可无视
@@ -19,3 +20,5 @@ https://github.com/Jvcon/AHK2Manager
 2.Cubase下shift+鼠标滚轮反转
 
 Cubuse的shift+滚轮操作方向与正经软件相反，有时候真不知道这群人脑子里装的是什么
+
+3.永远中文输入法只能输入中文,别瞎几把乱跳英文
