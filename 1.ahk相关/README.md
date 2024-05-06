@@ -21,4 +21,5 @@ https://github.com/Jvcon/AHK2Manager
 
 Cubuse的shift+滚轮操作方向与正经软件相反，有时候真不知道这群人脑子里装的是什么
 
-3.永远中文输入法只能输入中文,别瞎几把乱跳英文
+3.永远中文输入法只能输入中文,别瞎几把乱跳英文(非自制)
+https://gist.github.com/pernalin9/220d00016182acb7f13b96cd0506c0a9
