@@ -1,7 +1,9 @@
-#### 0.AHK2Manager_x64 多脚本管理
+#### 0.AHK2Manager_x64 多脚本管理 (非自制)
 #### 1.EngComma_swich 输入法自动切换英文标点
 #### 2.Cubase_ShiftScrollInverse Cubase下shift+鼠标滚轮反转
-#### 3.AlwaysCHS
+#### 3.AlwaysCHS(非自制)
+#### 4.ijkluoCaps
+#### 5.keyboard_godot
 
 
 一些可能有的狂暴吐槽可无视
@@ -23,3 +25,5 @@ Cubuse的shift+滚轮操作方向与正经软件相反，有时候真不知道�
 
 3.永远中文输入法只能输入中文,别瞎几把乱跳英文(非自制)
 https://gist.github.com/pernalin9/220d00016182acb7f13b96cd0506c0a9
+
+4.5自用改键与godot对于不兼容输入法的单独提取

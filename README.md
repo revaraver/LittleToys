@@ -6,3 +6,5 @@
 #### 1.EngComma_swich 输入法自动切换英文标点
 #### 2.Cubase_ShiftScrollInverse Cubase下shift+鼠标滚轮反转
 #### 3.AlwaysCHS(非自制)
+#### 4.ijkluoCaps
+#### 5.keyboard_godot
