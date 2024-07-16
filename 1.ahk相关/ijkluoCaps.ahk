@@ -1,13 +1,12 @@
 ; AutoHotkey script to disable capslock and make capslock+ijkl behave like arrow keys (ish),
 ; and implement capslock toggling functionality with Shift + CapsLock.
 
-;#NoTrayIcon
+#NoTrayIcon
 
 CapsLockState := "AlwaysOff"
 SetCapsLockState, %CapsLockState%
 MouseMoveDistance := 70  ; 定义鼠标移动距离变量
 #MouseMoveDistanceS := 300  ; 定义鼠标移动距离变量
-
 
 getModStates()
 {
@@ -121,8 +120,9 @@ return
 
 
 ;编辑器特别事件,解决godot4的与谷歌拼音冲突
-if WinActive("ahk_class Engine")
-{
+#if WinActive("ahk_class Engine")
+
+	
     Shift & 1::
         ClipSaved := ClipboardAll
         Clipboard := "!"  ; 将感叹号写入剪贴板
@@ -231,7 +231,9 @@ if WinActive("ahk_class Engine")
         Send, ^v  ; 发送 Ctrl + V 粘贴剪贴板内容
         Clipboard := ClipSaved
     return
-}
+	
+
+#if
 
 ;输入时间到剪切板
 CapsLock & T::

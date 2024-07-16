@@ -1,6 +1,6 @@
 #Persistent
 ;#NoTrayIcon
-if WinActive("ahk_class Engine")
+#if WinActive("ahk_class Engine")
 {
     Shift & 1::
         ClipSaved := ClipboardAll
@@ -111,4 +111,5 @@ if WinActive("ahk_class Engine")
         Clipboard := ClipSaved
     return
 }
+#if
 
