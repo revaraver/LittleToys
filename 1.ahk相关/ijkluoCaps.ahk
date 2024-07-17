@@ -70,12 +70,13 @@ CapsLock & SC027::
 sendKeyWithModStates("Backspace")
 return
 
-CapsLock & SC028::
+CapsLock & '::
 sendKeyWithModStates("Delete")
 return
    
 
-;编辑器特别事件,解决godot4.3的与谷歌拼音冲突
+;编辑器特别事件,解决godot4.3的与谷歌拼音冲突 自建
+#if WinActive("ahk_class Engine")
 CapsLock & f::
     ; 如果当前活动窗口是 Godot 编辑器
     if WinActive("ahk_class Engine")
@@ -118,11 +119,24 @@ CapsLock & Space::
 click
 return
 
+CapsLock & Shift::
+Send,{Enter}
+Send,{Shift}
+return
+
+CapsLock & q::
+^/
+return
+
+#if
+
+
+
+
 
 ;编辑器特别事件,解决godot4的与谷歌拼音冲突
 #if WinActive("ahk_class Engine")
-
-	
+{
     Shift & 1::
         ClipSaved := ClipboardAll
         Clipboard := "!"  ; 将感叹号写入剪贴板
@@ -231,8 +245,7 @@ return
         Send, ^v  ; 发送 Ctrl + V 粘贴剪贴板内容
         Clipboard := ClipSaved
     return
-	
-
+}
 #if
 
 ;输入时间到剪切板
