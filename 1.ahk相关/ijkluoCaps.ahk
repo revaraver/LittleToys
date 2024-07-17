@@ -66,7 +66,7 @@ CapsLock & o::
 sendKeyWithModStates("End")
 return
 
-CapsLock & SC027::
+CapsLock & `;::
 sendKeyWithModStates("Backspace")
 return
 
@@ -119,6 +119,10 @@ CapsLock & Space::
 click
 return
 
+
+
+#if
+
 CapsLock & Shift::
 Send,{Enter}
 Send,{Shift}
@@ -127,10 +131,6 @@ return
 CapsLock & q::
 ^/
 return
-
-#if
-
-
 
 
 
