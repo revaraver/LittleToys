@@ -75,19 +75,14 @@ sendKeyWithModStates("Delete")
 return
    
 
-;编辑器特别事件,解决godot4.3的与谷歌拼音冲突 自建
-#if WinActive("ahk_class Engine")
+;编辑器特别事件,CapsLock+f打左括号
+
 CapsLock & f::
-    ; 如果当前活动窗口是 Godot 编辑器
-    if WinActive("ahk_class Engine")
-    {
+if WinActive("ahk_class Engine")
         SendPlay, (
-    }
-    else
-    {
-        Send, (
-    }
+else Send,(
 return
+
 
 CapsLock & h::)
 return
@@ -119,10 +114,6 @@ CapsLock & Space::
 click
 return
 
-
-
-#if
-
 CapsLock & Shift::
 Send,{Enter}
 Send,{Shift}
@@ -133,7 +124,7 @@ CapsLock & q::
 return
 
 
-
+;下面是单独的脚本内的内容
 ;编辑器特别事件,解决godot4的与谷歌拼音冲突
 #if WinActive("ahk_class Engine")
 {
@@ -198,9 +189,8 @@ return
 
     "::  ; 双引号
         ClipSaved := ClipboardAll
-        Clipboard := """"""  ; 将双引号写入剪贴板
+        Clipboard := """"  ; 将双引号写入剪贴板
         Send, ^v  ; 发送 Ctrl + V 粘贴剪贴板内容
-        Send, {Left}
         Clipboard := ClipSaved
     return
 

@@ -63,9 +63,8 @@
 
     "::  ; 双引号
         ClipSaved := ClipboardAll
-        Clipboard := """"""  ; 将双引号写入剪贴板
+        Clipboard := """"  ; 将双引号写入剪贴板
         Send, ^v  ; 发送 Ctrl + V 粘贴剪贴板内容
-        Send, {Left}
         Clipboard := ClipSaved
     return
 
