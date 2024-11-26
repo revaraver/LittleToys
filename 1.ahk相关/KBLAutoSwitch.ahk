@@ -2494,9 +2494,9 @@ Set_Chinese: ; 当前窗口设为中文
 		Return
 	If (Enter_Inputing_Content_CnTo=1)
 		Gosub, Label_ToEnglishInputingOpera
+		
 	setKBLlLayout(0)
-	if (A_ThisHotkey = "~RShift" || A_ThisHotkey = "~RShift Up")  ; 如果是右Shift触发
-		gosub, Add_To_Cn  ; 添加到英文窗口列表
+	Gosub, Add_To_Cn
 Return
 
 Set_ChineseEnglish: ; 当前窗口设为英文（中文输入法）
@@ -2511,8 +2511,7 @@ Set_English: ; 当前窗口设为英文
 		Return
 	Gosub, Label_ToEnglishInputingOpera
 	setKBLlLayout(2)
-	if (A_ThisHotkey = "~LShift" || A_ThisHotkey = "~LShift Up")  ; 如果是左Shift触发
-		gosub, Add_To_En  ; 添加到中文窗口列表
+	Gosub, Add_To_En
 Return
 
 Toggle_CN_CNEN: ; 切换中英文(中文)
@@ -2630,40 +2629,77 @@ GetRealItem_key(Section,item_key) { ; 获取合适的Item_key
 	}
 }
 
-AddToKBLWin(KBLName,KBLList,TarWin:="") { ; 将当前窗口添加至指定KBL窗口，KBL窗口为空则去除
-	Thread, NoTimers , True
-	item_key_val := getINIItem(TarWin)
-	item_key := item_key_val[0]
-	item_val := item_key_val[1]
-	item_regex := item_key_val[2]
-	If (item_key = "")
-		Return
-	If (KBLName!=""){	
-		IniRead, res, %INI%, %KBLName%
-		TarItem_keys := IsHasSameRegExStr(res,item_regex)
-		If (TarItem_keys!="") {
-			msg := "【" TarItem_keys[1] "】 已存在于【" KBLName "】！"
-		}Else{
-			item_key := GetRealItem_key(KBLName,item_key)
-			IniWrite, %item_val%, %INI%, %KBLName%, %item_key%
-			;msg := "【" item_key "】 添加到【" KBLName "】 【成功】！"
-		}
-	}Else
-		msg := "【" item_key "】 移除 【成功】！"
-	Loop, parse, KBLList, `,
-	{
-	    If (A_LoopField=KBLName)
-	    	Continue
-	    Else {
-	    	IniRead, res, %INI%, %A_LoopField%
-	    	RegExStr := IsHasSameRegExStr(res,item_regex)
-	    	resNew := RegExReplace(res, RegExStr)
-	    	IniDelete, %INI%, %A_LoopField%
-	    	IniWrite, %resNew%, %INI%, %A_LoopField%
-	    }
-	}
-	showToolTip(msg, State_ShowTime)
-	Thread, NoTimers , False
+
+AddToKBLWin(KBLName, KBLList, TarWin := "") { ; 将当前窗口添加至指定KBL窗口，KBL窗口为空则移除
+    Thread, NoTimers, True
+    item_key_val := getINIItem(TarWin)
+    item_key := item_key_val[0]
+    item_val := item_key_val[1]
+							  
+    If (item_key = "")
+        Return
+
+    if (KBLName != "") {
+        IniRead, res, %INI%, %KBLName%
+        entriesList := StrSplit(res, "`n", "`r")
+        found := false
+        for index, line in entriesList {
+            if (line = "")
+                continue
+            if (equalPos := InStr(line, "=")) {
+                key := SubStr(line, 1, equalPos - 1)
+                val := SubStr(line, equalPos + 1)
+            } else {
+                key := ""
+                val := line
+            }
+            if (val = item_val) {
+                found := true
+                ;msg := "【" key "】 已存在于【" KBLName "】！"
+                break
+            }
+        }
+        if (!found) {
+            item_key := GetRealItem_key(KBLName, item_key)
+            IniWrite, %item_val%, %INI%, %KBLName%, %item_key%
+            ;msg := "【" item_key "】 添加到【" KBLName "】 【成功】！"
+        }
+    } else {
+        msg := "【" item_key "】 移除 【成功】！"
+    }
+
+    Loop, parse, KBLList, `,
+    {
+        section := A_LoopField
+        if (section = KBLName)
+            continue
+        else {
+            IniRead, res, %INI%, %section%
+            entriesList := StrSplit(res, "`n", "`r")
+            newEntries := ""
+            for index, line in entriesList {
+                if (line = "")
+                    continue
+                if (equalPos := InStr(line, "=")) {
+                    key := SubStr(line, 1, equalPos -1)
+                    val := SubStr(line, equalPos +1)
+                } else {
+                    key := ""
+                    val := line
+                }
+                if (val != item_val) {
+                    if (key != "")
+                        newEntries .= key "=" val "`n"
+                    else
+                        newEntries .= val "`n"
+                }
+            }
+            IniDelete, %INI%, %section%
+            IniWrite, % Trim(newEntries, "`n"), %INI%, %section%
+        }
+    }
+    showToolTip(msg, State_ShowTime)
+    Thread, NoTimers, False
 }
 
 ;-----------------------------------【设置读取功能】-----------------------------------------------

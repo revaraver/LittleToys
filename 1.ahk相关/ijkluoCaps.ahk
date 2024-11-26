@@ -1,7 +1,7 @@
 ; AutoHotkey script to disable capslock and make capslock+ijkl behave like arrow keys (ish),
 ; and implement capslock toggling functionality with Shift + CapsLock.
 
-;#NoTrayIcon
+#NoTrayIcon
 #InputLevel 1
 CapsLockState := "AlwaysOff"
 SetCapsLockState, %CapsLockState%
