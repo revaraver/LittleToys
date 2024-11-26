@@ -2495,6 +2495,8 @@ Set_Chinese: ; 当前窗口设为中文
 	If (Enter_Inputing_Content_CnTo=1)
 		Gosub, Label_ToEnglishInputingOpera
 	setKBLlLayout(0)
+	if (A_ThisHotkey = "~RShift" || A_ThisHotkey = "~RShift Up")  ; 如果是右Shift触发
+		gosub, Add_To_Cn  ; 添加到英文窗口列表
 Return
 
 Set_ChineseEnglish: ; 当前窗口设为英文（中文输入法）
@@ -2509,6 +2511,8 @@ Set_English: ; 当前窗口设为英文
 		Return
 	Gosub, Label_ToEnglishInputingOpera
 	setKBLlLayout(2)
+	if (A_ThisHotkey = "~LShift" || A_ThisHotkey = "~LShift Up")  ; 如果是左Shift触发
+		gosub, Add_To_En  ; 添加到中文窗口列表
 Return
 
 Toggle_CN_CNEN: ; 切换中英文(中文)
@@ -2642,7 +2646,7 @@ AddToKBLWin(KBLName,KBLList,TarWin:="") { ; 将当前窗口添加至指定KBL窗
 		}Else{
 			item_key := GetRealItem_key(KBLName,item_key)
 			IniWrite, %item_val%, %INI%, %KBLName%, %item_key%
-			msg := "【" item_key "】 添加到【" KBLName "】 【成功】！"
+			;msg := "【" item_key "】 添加到【" KBLName "】 【成功】！"
 		}
 	}Else
 		msg := "【" item_key "】 移除 【成功】！"
