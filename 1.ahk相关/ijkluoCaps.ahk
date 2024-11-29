@@ -1,8 +1,9 @@
-; AutoHotkey script to disable capslock and make capslock+ijkl behave like arrow keys (ish),
-; and implement capslock toggling functionality with Shift + CapsLock.
+; 逐渐丰满的caps脚本
+; 用win+caps切换caps状态
 
-#NoTrayIcon
+;#NoTrayIcon
 #InputLevel 1
+#Include %A_ScriptDir%\lowInputLevel.ahk
 CapsLockState := "AlwaysOff"
 SetCapsLockState, %CapsLockState%
 
@@ -93,6 +94,13 @@ CapsLock & '::
 sendKeyWithModStates("Delete")
 return
 
+
+CapsLock & `::  ; 按下 CapsLock + 反引号时触发
+SendL("``")
+return
+
+
+
 CapsLock & 3:: 
 Send {End}
 Send {Space 3}
@@ -134,7 +142,9 @@ return
 CapsLock & ,::-
 return
 
-CapsLock & .::=
+CapsLock & .::
+send,-
+send,>
 return
 
 CapsLock & /::|
@@ -158,8 +168,12 @@ CapsLock & e::
 return
 
 CapsLock & q::
+send, {End}
+send, {:}
 send, {enter}
 return
+
+
 
 CapsLock & enter::
 send, {end}
@@ -167,6 +181,12 @@ send, {enter}
 return
 
 #IfWinActive ahk_class Engine ; 监测 Godot 的类名
+
+~!q:: ;alt+q 切换焦点到文件系统
+	send, {tab}
+	send, {tab}
+	send, {tab}
+return
 
 ~!w:: ; Alt + W
 
@@ -198,10 +218,17 @@ return
     return
 }
 
+CapsLock & p:: ;用来免引号检索后再用引号括起来(检索信号名称)
+Send, ^+{Left}
+Send "
+send, {right}
+return
 
+#If
 
 
 #If WinActive("ahk_exe Cursor.exe")
+
 F5:: ;cursor中的f5切程序运行
 {
 	Send, ^s
@@ -213,6 +240,12 @@ F5:: ;cursor中的f5切程序运行
     ; 发送 F5
     Send, {F5}
 }
+return
+
+CapsLock & p::
+Send, ^+{Left}
+Send "
+send, {right}
 return
 
 F6:: ;cursor中的f6切程序运行
@@ -315,6 +348,8 @@ CapsLock & T::
 return
 
 ;静音部分开始
+
+
 #Include %A_ScriptDir%\VA.ahk ; 引入 VA.ahk 库,用来静音当前活动窗口
 
 CapsLock & F1:: ;caps+* hotkey - toggle mute state of active window
@@ -322,13 +357,17 @@ CapsLock & F1:: ;caps+* hotkey - toggle mute state of active window
     ControlGetFocus, FocusedControl, ahk_id %WindowEXE%
     ControlGet, Hwnd, Hwnd,, %FocusedControl%, ahk_id %WindowEXE%
     WinGet, simplexe, processname, ahk_id %Hwnd%
-  if !(Volume := GetVolumeObject(simplexe))
-    ToolTip, There was a problem retrieving the application volume interface
-    SetTimer, RemoveToolTip, 500 ; Display the tooltip for 3 seconds
-  VA_ISimpleAudioVolume_GetMute(Volume, Mute)  ;Get mute state
-  ; Msgbox % "Application " simplexe " is currently " (mute ? "muted" : "not muted")
-  VA_ISimpleAudioVolume_SetMute(Volume, !Mute) ;Toggle mute state
-  ObjRelease(Volume)
+  Loop, 3  ; 最多重试3次
+  {
+    if (Volume := GetVolumeObject(simplexe))
+    {
+      VA_ISimpleAudioVolume_GetMute(Volume, Mute)
+      VA_ISimpleAudioVolume_SetMute(Volume, !Mute)
+      ObjRelease(Volume)
+      return
+    }
+    Sleep, 1000  ; 等待100ms后重试
+  }
 return
 
 GetVolumeObject(targetExeName) {
