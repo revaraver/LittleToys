@@ -540,7 +540,7 @@ Label_CreateHotkey:	; 创建热键
 Label_BoundHotkey: ; 绑定特殊热键
 	If (Outer_InputKey_Compatible=1)
 		extraKey := " Up"
-	BoundHotkey("~LShift" extraKey,Hotkey_Left_Shift)
+	BoundHotkey("~LShift",Hotkey_Left_Shift) ; 移除extraKey,改为监听按下
 	BoundHotkey("~RShift" extraKey,Hotkey_Right_Shift)
 	BoundHotkey("~LControl" extraKey,Hotkey_Left_Ctrl)
 	BoundHotkey("~RControl" extraKey,Hotkey_Right_Ctrl)
@@ -2397,14 +2397,18 @@ TarHotFun: ; 热字串功能触发
 Return
 
 BoundHotkey(BoundHotkey,Hotkey_Fun) { ; 绑定特殊热键
+	if (BoundHotkey = "~LShift") {
+		Hotkey, %BoundHotkey%, HandleLeftShift  ; 左Shift使用新的处理函数
+		return
+	}
 	Switch Hotkey_Fun
 	{
 		Case 1: Hotkey, %BoundHotkey%, Set_Chinese
 		Case 2: Hotkey, %BoundHotkey%, Set_ChineseEnglish
-		Case 3: Hotkey, %BoundHotkey%, Set_English
+			Case 3: Hotkey, %BoundHotkey%, Set_English
 		Case 4: Hotkey, %BoundHotkey%, Toggle_CN_CNEN
 		Case 5: Hotkey, %BoundHotkey%, Toggle_CN_EN
-		Case 6: Hotkey, %BoundHotkey%, Reset_KBL
+			Case 6: Hotkey, %BoundHotkey%, Reset_KBL
 	}
 }
 
@@ -3227,3 +3231,26 @@ getCurPath(Cur_Style:="",CurSize:=1080,CurName:="") { ; 获取鼠标指针路径
     	CurPath := CurPath ".cur"
     Return CurPath
 }
+
+; 添加新的处理左Shift的函数
+HandleLeftShift:
+    if (A_ThisHotkey = "~LShift") {
+        ; 按下时记录时间戳
+        shiftPressTime := A_TickCount
+        KeyWait, LShift  ; 等待Shift释放
+        ; 计算按住时长
+        pressDuration := A_TickCount - shiftPressTime
+        ; 如果时长小于500ms则触发
+        if (pressDuration < 500) {
+            Switch Hotkey_Left_Shift 
+            {
+                Case 1: Gosub, Set_Chinese
+                Case 2: Gosub, Set_ChineseEnglish
+                Case 3: Gosub, Set_English
+                Case 4: Gosub, Toggle_CN_CNEN
+                Case 5: Gosub, Toggle_CN_EN
+                Case 6: Gosub, Reset_KBL
+            }
+        }
+    }
+return

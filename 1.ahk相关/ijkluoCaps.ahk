@@ -300,7 +300,7 @@ return
 
 #If WinActive("ahk_exe Cursor.exe")
 
-F5:: ;cursor中的f5切程序运行
+F5:: ;Cursor中的f5切程序运行
 {
 	Send, ^s
 	Sleep, 100
@@ -319,7 +319,7 @@ Send "
 send, {right}
 return
 
-F6:: ;cursor中的f6切程序运行
+F6:: ;Cursor中的f6切程序运行
 {
 	Send, ^s
 	Sleep, 100
@@ -552,7 +552,7 @@ VA_ISimpleAudioVolume_GetMute(this, ByRef Muted) {
 
 
 
-; Toggle CapsLock functionality with Shift + CapsLock
+; Toggle CapsLock functionality with win + CapsLock
 #CapsLock::
 CapsLockState := (CapsLockState = "AlwaysOff") ? "AlwaysOn" : "AlwaysOff"
 SetCapsLockState, %CapsLockState%
