@@ -8,6 +8,30 @@ CapsLockState := "AlwaysOff"
 SetCapsLockState, %CapsLockState%
 
 
+
+~`::  ; 按下 ` 键
+    BlockInput, MouseMove  ; 禁止鼠标移动
+    keyPressCount := 0  ; 初始化按键计数器
+
+    ; 等待直到按下两个任意按键
+    while (keyPressCount < 1)
+    {
+        Input, userInput, L1 T1  ; 等待用户输入一个字符（按键），并设置超时为1秒
+
+        if (userInput)  ; 如果有按键输入
+        {
+
+			Send, %userInput%
+            keyPressCount := keyPressCount + 1  ; 增加按键计数器
+        }
+    }
+
+    BlockInput, MouseMoveOff  ; 解除鼠标禁用
+return
+
+
+
+
 getModStates()
 {
     ModState := ""
@@ -148,8 +172,8 @@ send,>
 return
 
 CapsLock & /::|
-return 
 
+return 
 
 CapsLock & [::^z
 return
@@ -182,21 +206,68 @@ return
 
 #IfWinActive ahk_class Engine ; 监测 Godot 的类名
 
-~!q:: ;alt+q 切换焦点到文件系统
-	send, {tab}
-	send, {tab}
-	send, {tab}
-return
+;~!q:: ;alt+q 切换焦点到文件系统 2025_03_19 03:37:06已经弃用 因为还是底部的文件系统好用一点 虽然还是很屎
+;	send, {tab}
+;	send, {tab}
+;	send, {tab}
+;return
 
-~!w:: ; Alt + W
-
-    
-    ; 延迟 100ms
-    Sleep, 100
-    
+!w:: ; Alt + w
+    Send "{RButton}"  ; 发送鼠标右键
+	Sleep, 1
+    Send {Up}     ; 发送两次上方向键
+	Send {Up}
+	Sleep, 1
+    Send "{Enter}"    ; 发送回车键
     ; 切换到名为 "Cursor" 的窗口
     WinActivate, ahk_exe Cursor.exe ; 替换 Cursor.exe 为实际目标窗口的进程名
 return
+return
+
+
+
+!e:: ; Alt + e
+
+    ; 切换到名为 "Cursor" 的窗口
+    WinActivate, ahk_exe Cursor.exe ; 替换 Cursor.exe 为实际目标窗口的进程名
+return
+
+CapsLock & c::
+    SendInput, ^+c
+    ; 保存当前剪贴板内容
+    ClipSaved := ClipboardAll
+    
+    
+    ; 切换到场景树面板
+    SendInput, ^1
+    Sleep, 1  ; 等待1毫秒确保面板切换完成
+    
+    ; 切换到检查器面板
+    SendInput, ^2
+    Sleep, 1  ; 等待1毫秒确保面板切换完成
+    
+    ; 输入点号
+    SendInput, .
+    
+    ; 粘贴之前复制的内容
+    SendInput, ^v
+    
+Return
+
+CapsLock & v::
+     ; 切换到场景树面板
+    SendInput, ^1
+    Sleep, 1  ; 等待1毫秒确保面板切换完成
+    
+    ; 切换到检查器面板
+    SendInput, ^2
+    Sleep, 1  ; 等待1毫秒确保面板切换完成
+    SendInput, .
+    
+    ; 粘贴之前复制的内容
+    SendInput, ^v
+    
+Return
 
 ; 按下 win + F8 时，仅发送 F8
 #F8::
@@ -218,7 +289,7 @@ return
     return
 }
 
-CapsLock & p:: ;用来免引号检索后再用引号括起来(检索信号名称)
+CapsLock & p:: ;用来将免引号的检索后再用引号括起来(检索信号名称),或者说用来将内容双引号起来
 Send, ^+{Left}
 Send "
 send, {right}
@@ -233,8 +304,8 @@ F5:: ;cursor中的f5切程序运行
 {
 	Send, ^s
 	Sleep, 100
-    ; 发送 Win+4
-    Send, #4
+    ; 切换godot
+    WinActivate, ahk_class Engine
     ; 等待一段时间以确保操作被注册
     Sleep, 150
     ; 发送 F5
@@ -252,8 +323,8 @@ F6:: ;cursor中的f6切程序运行
 {
 	Send, ^s
 	Sleep, 100
-    ; 发送 Win+4
-    Send, #4
+    ;切换godot
+	WinActivate, ahk_class Engine
     ; 等待一段时间以确保操作被注册
     Sleep, 150
     ; 发送 F6
@@ -324,18 +395,20 @@ CapsLock & c::
 }
 
 CapsLock & Lshift::  ; 监听 CapsLock + 左Shift
-{
+{	
+	Send, ^!{Numpad1}
      ; 按下右 Shift
-    ;DllCall("user32.dll\keybd_event", "UInt", 0xA1, "UInt", 0, "UInt", 0, "UInt", 0)  ; Right Shift Down
+    DllCall("user32.dll\keybd_event", "UInt", 0xA1, "UInt", 0, "UInt", 0, "UInt", 0)  ; Right Shift Down
 
     ; 等待片刻，模拟按键按住的效果
-    ;Sleep 10
+    Sleep 10
 
     ; 释放右 Shift
-    ;DllCall("user32.dll\keybd_event", "UInt", 0xA1, "UInt", 0, "UInt", 2, "UInt", 0)  ; Right Shift Up
-	Send, ^!{Numpad1}
-	send {Rshift}
-    ;return
+    DllCall("user32.dll\keybd_event", "UInt", 0xA1, "UInt", 0, "UInt", 2, "UInt", 0)  ; Right Shift Up
+
+
+    return
+
 }
 
 
