@@ -227,7 +227,7 @@ Label_ReadINI: ; 读取INI配置文件
 	iniread, Left_Mouse_ShowKBL_Up, %INI%, 高级设置, 左键弹起后提示输入法状态生效窗口, Code.exe
 	iniread, SetTimer_Reset_KBL, %INI%, 高级设置, 定时重置输入法, 60|编辑器
 	iniread, Reset_CapsLock, %INI%, 高级设置, 切换重置大小写, 1
-	iniread, Enter_Inputing_Content, %INI%, 高级设置, 上屏字符内容, 2|1
+	iniread, Enter_Inputing_Content, %INI%, 高级设置, 上屏字符内容, 4|1
 	iniread, GuiTTColor, %INI%, 高级设置, 提示颜色, 333434|dfe3e3|02ecfb|ff0000
 	iniread, TrayTipContent, %INI%, 高级设置, 托盘提示内容, %A_Space%
 	iniread, AutoCheckUpdate, %INI%, 高级设置, 自动检查更新, 0
@@ -668,7 +668,7 @@ Return
 
 Label_ClearMEM: ; 清理内存
     pid:=() ? DllCall("GetCurrentProcessId") : pid
-    h:=DllCall("OpenProcess", "UInt", 0x001F0FFF, "Int", 0, "Int", pid)
+	h:=DllCall("OpenProcess", "UInt", 0x001F0FFF, "Int", 0, "Int", pid)
     DllCall("SetProcessWorkingSetSize", "UInt", h, "Int", -1, "Int", -1)
     DllCall("CloseHandle", "Int", h)
 Return
@@ -1182,7 +1182,7 @@ Label_Init_INI: ; 初始化配置文件INI
 	FileAppend,左键弹起后提示输入法状态生效窗口=Code.exe`n, %INI%
 	FileAppend,定时重置输入法=60|编辑器`n, %INI%
 	FileAppend,切换重置大小写=1`n, %INI%
-	FileAppend,上屏字符内容=2|1`n, %INI%
+	FileAppend,上屏字符内容=4|1`n, %INI%
 	FileAppend,提示颜色=333434|dfe3e3|02ecfb|ff0000`n, %INI%
 	FileAppend,托盘提示内容=KBLAutoSwitch（`%权限`%）``n`%启动时间`%``n版本：`%版本`%``n最新版本：`%最新版本`%``n自动切换统计：`%自动切换次数`%`n, %INI%
 	FileAppend,自动检查更新=30`n, %INI%
@@ -1534,7 +1534,7 @@ Menu_Settings_Gui: ; 设置页面Gui
 		LV_Add(, 4, "左键弹起后提示输入法状态生效窗口", Left_Mouse_ShowKBL_State, Left_Mouse_ShowKBL_Up,"-在指定窗口组左键点击提示输入法时，使用左键弹起响应：`n参数为窗口或窗口组")
 		LV_Add(, 5, "定时重置输入法", "秒", SetTimer_Reset_KBL,"-无操作固定时间重置输入法（秒）：`n1.参数1为时间，参数2为窗口组`n2.参数使用|分隔")
 		LV_Add(, 6, "切换重置大小写", TransformState(DefaultCapsLockState,Reset_CapsLock_State), Reset_CapsLock,"-切换输入法后自动重置大小写：`n1.参数1为大小写状态（0为不重置，1为小写，2为大写），参数2为屏蔽窗口组，该窗口组将不生效`n2.参数使用|分隔")
-		LV_Add(, 7, "上屏字符内容", Enter_Inputing_ContentObj.Count(), Enter_Inputing_Content,"-中文输入法状态下输入待上屏的字符处理`n-需关闭输入法shift，开启软件内快捷键切换：`n1.参数1表示处理方式，其中0表示使用输入法处理，1表示丢弃字符，2表示上屏字符，3表示上屏第一个候选内容`n2.参数2表示中文切换快捷键是否上屏`n目前已支持输入法：搜狗输入法、QQ五笔输入法、QQ拼音输入法、手心输入法、冰凌五笔")
+		LV_Add(, 7, "上屏字符内容", Enter_Inputing_ContentObj.Count(), Enter_Inputing_Content,"-中文输入法状态下输入待上屏的字符处理`n-需关闭输入法shift，开启软件内快捷键切换：`n1.参数1表示处理方式，其中0表示使用输入法处理，1表示丢弃字符，2表示上屏字符，3表示上屏第一个候选内容，4表示使用SendPlay方式上屏字符(解决兼容性问题)`n2.参数2表示中文切换快捷键是否上屏`n目前已支持输入法：搜狗输入法、QQ五笔输入法、QQ拼音输入法、手心输入法、冰凌五笔")
 		LV_Add(, 8, "提示颜色", GuiTTColorObj.Count(), GuiTTColor,"-切换提示颜色设置：`n包含四个参数（|隔开）：中文背景色|英文背景色|中文字体颜色|英文字体颜色")
 		LV_Add(, 9, "托盘提示内容", StrSplit(TrayTipContent, "``n").Count(), StrReplace(TrayTipContent, "``n", "`n"),"-托盘提示内容：`n1.变量可以使用内部变量、ahk变量、win系统变量`n2.变量使用百分号包裹（%变量名%），变量详情请查看帮助文档")
 		LV_Add(, 10, "自动检查更新", CheckDateTimeInterval " 天", AutoCheckUpdate,"-自动检查更新：`n0表示不检查更新，非0表示间隔天数`n状态表示距离上次检查更新已经过天数")
@@ -2442,6 +2442,7 @@ Label_ToEnglishInputingOpera: ; 切换到英文时处理已输入的字符
 			Case 1:SendInput, {Esc}
 			Case 2:SendInput, {Enter}
 			Case 3:SendInput, {Space}
+			Case 4:SendPlay, {Enter}  ; 使用SendPlay发送Enter键，可能解决与某些应用程序如Godot的兼容性问题
 		}
 	}
 	SetTitleMatchMode, 2
@@ -3241,7 +3242,7 @@ HandleLeftShift:
         ; 计算按住时长
         pressDuration := A_TickCount - shiftPressTime
         ; 如果时长小于500ms则触发
-        if (pressDuration < 500) {
+        if (pressDuration < 200) {
             Switch Hotkey_Left_Shift 
             {
                 Case 1: Gosub, Set_Chinese
