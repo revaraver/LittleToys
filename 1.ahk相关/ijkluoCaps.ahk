@@ -7,7 +7,49 @@
 CapsLockState := "AlwaysOff"
 SetCapsLockState, %CapsLockState%
 
+; 直接将 Caps + 十个键映射为数字键
+CapsLock & Delete::Send, 1
+CapsLock & End::Send, 2
+CapsLock & PgDn::Send, 3
+CapsLock & Insert::Send, 4
+CapsLock & Home::Send, 5
+CapsLock & PgUp::Send, 6
+CapsLock & PrintScreen::Send, 7
+CapsLock & ScrollLock::Send, 8
+CapsLock & Pause::Send, 9
+CapsLock & Rctrl::Send, 0
+CapsLock & Backspace::Send, 0
 
+; Caps + 方向键映射为加减乘除运算符
+CapsLock & Up::Send, {+}
+CapsLock & =::Send, {+}
+CapsLock & Down::Send, -
+CapsLock & -::Send, -
+CapsLock & Left::Send, *
+CapsLock & Right::Send, /
+CapsLock & \::Send, *+-*0
+CapsLock & AppsKey::Send, .
+; 直接将 Caps + 十个键映射为数字键
+Rshift & Delete::Send, 1
+Rshift & End::Send, 2
+Rshift & PgDn::Send, 3
+Rshift & Insert::Send, 4
+Rshift & Home::Send, 5
+Rshift & PgUp::Send, 6
+Rshift & PrintScreen::Send, 7
+Rshift & ScrollLock::Send, 8
+Rshift & Pause::Send, 9
+Rshift & Rctrl::Send, 0
+Rshift & Backspace::Send, 0
+
+; Caps + 方向键映射为加减乘除运算符
+Rshift & Up::Send, {+}
+Rshift & Down::Send, -
+Rshift & -::Send, -
+Rshift & Left::Send, *
+Rshift & Right::Send, /
+Rshift & \::Send, *
+Rshift & AppsKey::Send, .
 
 ~`::  ; 按下 ` 键
     BlockInput, MouseMove  ; 禁止鼠标移动
@@ -28,7 +70,6 @@ SetCapsLockState, %CapsLockState%
 
     BlockInput, MouseMoveOff  ; 解除鼠标禁用
 return
-
 
 
 
@@ -171,9 +212,7 @@ send,-
 send,>
 return
 
-CapsLock & /::|
 
-return 
 
 CapsLock & [::^z
 return
@@ -187,13 +226,12 @@ return
 
 
 
-CapsLock & e::
+CapsLock & q::
 ^/
 return
 
-CapsLock & q::
+CapsLock & e::
 send, {End}
-send, {:}
 send, {enter}
 return
 
@@ -201,6 +239,7 @@ return
 
 CapsLock & enter::
 send, {end}
+send, {:}
 send, {enter}
 return
 
