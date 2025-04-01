@@ -541,7 +541,7 @@ Label_BoundHotkey: ; 绑定特殊热键
 	If (Outer_InputKey_Compatible=1)
 		extraKey := " Up"
 	BoundHotkey("~LShift",Hotkey_Left_Shift) ; 移除extraKey,改为监听按下
-	BoundHotkey("~RShift" extraKey,Hotkey_Right_Shift)
+	BoundHotkey("~RShift",Hotkey_Right_Shift) ; 移除extraKey,改为监听按下
 	BoundHotkey("~LControl" extraKey,Hotkey_Left_Ctrl)
 	BoundHotkey("~RControl" extraKey,Hotkey_Right_Ctrl)
 	BoundHotkey("~LAlt" extraKey,Hotkey_Left_Alt)
@@ -2401,6 +2401,10 @@ BoundHotkey(BoundHotkey,Hotkey_Fun) { ; 绑定特殊热键
 		Hotkey, %BoundHotkey%, HandleLeftShift  ; 左Shift使用新的处理函数
 		return
 	}
+	if (BoundHotkey = "~RShift") {
+		Hotkey, %BoundHotkey%, HandleRightShift  ; 右Shift使用新的处理函数
+		return
+	}
 	Switch Hotkey_Fun
 	{
 		Case 1: Hotkey, %BoundHotkey%, Set_Chinese
@@ -3244,6 +3248,28 @@ HandleLeftShift:
         ; 如果时长小于500ms则触发
         if (pressDuration < 200) {
             Switch Hotkey_Left_Shift 
+            {
+                Case 1: Gosub, Set_Chinese
+                Case 2: Gosub, Set_ChineseEnglish
+                Case 3: Gosub, Set_English
+                Case 4: Gosub, Toggle_CN_CNEN
+                Case 5: Gosub, Toggle_CN_EN
+                Case 6: Gosub, Reset_KBL
+            }
+        }
+    }
+return
+
+HandleRightShift:
+    if (A_ThisHotkey = "~RShift") {
+        ; 按下时记录时间戳
+        shiftPressTime := A_TickCount
+        KeyWait, RShift  ; 等待Shift释放
+        ; 计算按住时长
+        pressDuration := A_TickCount - shiftPressTime
+        ; 如果时长小于500ms则触发
+        if (pressDuration < 200) {
+            Switch Hotkey_Right_Shift 
             {
                 Case 1: Gosub, Set_Chinese
                 Case 2: Gosub, Set_ChineseEnglish
