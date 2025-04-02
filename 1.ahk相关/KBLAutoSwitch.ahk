@@ -833,8 +833,13 @@ setIME(setSts, win_id:="") { ; 设置输入法状态-获取状态-末位设置
 
 getIMEwinid() { ; 获取激活窗口IME线程id
 	If WinActive("ahk_class ConsoleWindowClass"){
-		WinGet, win_id, , ahk_exe conhost.exe
-	}Else If WinActive("ahk_group focus_control_ahk_group"){
+		WinGet, hwnd, ID, A  ; 直接获取活动窗口的hwnd
+		win_id := hwnd
+		; 如果上面的方法不起作用，再尝试conhost的方式
+		If (!win_id) {
+			WinGet, win_id, , ahk_exe conhost.exe
+		}
+	} Else If WinActive("ahk_group focus_control_ahk_group"){
 		ControlGetFocus, CClassNN, A
 		If (CClassNN = "")
 			WinGet, win_id, , A
