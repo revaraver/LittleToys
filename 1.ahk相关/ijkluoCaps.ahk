@@ -83,17 +83,7 @@ CapsLock & Space::
 		Send, {Shift up} ; 模拟松开 Shift 键
 		return
     }
-	if GetKeyState("Shift", "P")
- 	{
-        togglewacom:=!togglewacom
-		ToolTip % "wacom独按模式" (togglewacom? "开" : "关")
-		if(togglewacom)
-		toggleswitch:=1
-		sleep 500 
-		ToolTip
-
-		return
-    }
+    
 	else
 	{
 		if(toggleswitch)
@@ -107,15 +97,7 @@ CapsLock & Space::
 		    ;ToolTip
 			if (currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
 			{
-				if(xpos=1920&&ypos=4)
-				{
-					
-					ScreenSwitch("toRight")
-				}
-				else
-				{
-					ScreenSwitch("toRightWacom")
-				}
+				ScreenSwitch("toRight")
 			}
 			else
 			{	
@@ -134,37 +116,6 @@ CapsLock & Space::
 return
 
 
-~LButton::
-	global toggled
-	
-	if(toggleswitch)
-	{	
-		global toggled
-
-		WinGet, currentProcess, ProcessName, A
-		if(togglewacom && toggled)
-		{
-			ScreenSwitch("toRightWacom")
-			return
-		}
-		if (currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
-		{
-			
-			toggled:=1 
-			
-		}
-		else
-		{
-			toggled:=0
-			
-		}
-		if(togglewacom && toggled)
-		{
-			ScreenSwitch("toRightWacom")
-			return
-		}
-	} 
-	return
 	
 ScreenSwitch(f){
 	global toggled
@@ -184,21 +135,14 @@ ScreenSwitch(f){
 	}
 	if(f="toRight")
 	{
-	Send ^!{F2}   ; 发送 Ctrl+Alt+F2 
-	MouseMove, %xposr%, %yposr%, 0  ; 0 表示瞬间移动
-	
-		toggled:=0
-		prints("右")
-		
-	}
-	if(f="toRightWacom")
-	{
 		Send ^!{F2}   ; 发送 Ctrl+Alt+F2 
-		;click
+		MouseMove, %xposr%, %yposr%, 0  ; 0 表示瞬间移动
 		toggled:=0
 		prints("右")
+	}
+
 		
-	}		
+			
 	Send, {Ctrl up}  ; 模拟松开 Ctrl 键
 	Send, {Alt up}   ; 模拟松开 Alt 键
 	Send, {Shift up} ; 模拟松开 Shift 键
