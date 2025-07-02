@@ -3251,7 +3251,7 @@ HandleLeftShift:
         ; 计算按住时长
         pressDuration := A_TickCount - shiftPressTime
         ; 如果时长小于500ms则触发
-        if (pressDuration < 200) {
+        if (pressDuration < 150) {
             Switch Hotkey_Left_Shift 
             {
                 Case 1: Gosub, Set_Chinese
@@ -3273,7 +3273,7 @@ HandleRightShift:
         ; 计算按住时长
         pressDuration := A_TickCount - shiftPressTime
         ; 如果时长小于500ms则触发
-        if (pressDuration < 200) {
+        if (pressDuration < 150) {
             Switch Hotkey_Right_Shift 
             {
                 Case 1: Gosub, Set_Chinese

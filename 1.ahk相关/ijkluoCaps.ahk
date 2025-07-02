@@ -4,8 +4,222 @@
 ;#NoTrayIcon
 #InputLevel 1
 #Include %A_ScriptDir%\lowInputLevel.ahk
+CoordMode, mouse, Screen
+CoordMode, ToolTip, Screen
+toggleswitch:=0
+togglewacom:=0
+toggled:=0
 CapsLockState := "AlwaysOff"
 SetCapsLockState, %CapsLockState%
+MouseGetPos, xposr, yposr
+ToolTip caps脚本启动,1920,1000
+sleep 300 
+ToolTip
+
+CapsLock & ESC::
+    ExitApp
+return
+
+CapsLock & F1::
+    reload
+return
+
+
+
+CapsLock & F3::
+	KeyWait, F3,U  ; 等待 F3 抬起
+    KeyWait, CapsLock,U  ; 等待 CapsLock 抬起
+	Sleep 100
+	Send ^!{F1}         ; Ctrl+Alt+F1
+    Sleep 300           ; 稍作延迟以确保系统反应
+
+    Send #x             ; Win+X
+    Sleep 300
+
+    Send u              ; U 进入关机菜单
+    Sleep 200
+
+    Send s              ; S 选择休眠/睡眠（取决于系统配置）
+
+    Send ^!{F2}         ; Ctrl+Alt+F2
+	return
+
+CapsLock & F4::
+	KeyWait, F4,U  ; 等待 F4 抬起
+    KeyWait, CapsLock,U  ; 等待 CapsLock 抬起
+	Sleep 100
+	Send ^!{F1}         ; Ctrl+Alt+F1
+    Sleep 300           ; 稍作延迟以确保系统反应
+
+    Send #x             ; Win+X
+    Sleep 300
+
+    Send u              ; U 进入关机菜单
+    Sleep 200
+
+    Send s              ; S 选择休眠/睡眠（取决于系统配置）
+    Sleep 1000          ; 等待操作完成或取消（视情况）
+
+    Send ^!{F2}         ; Ctrl+Alt+F2
+	DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
+	return
+
+;用来改无界鼠标的  2025_06_29 21:13:58
+CapsLock & Space::
+	if GetKeyState("Ctrl", "P")
+ 	{
+        toggleswitch:=!toggleswitch
+		
+		if(togglewacom)
+		{
+			toggleswitch:=1
+			togglewacom:=0
+		}
+		ToolTip % "caps+space切换" (toggleswitch? "开" : "关")
+		sleep 500 
+		ToolTip
+		Send, {Ctrl up}  ; 模拟松开 Ctrl 键
+		Send, {Alt up}   ; 模拟松开 Alt 键
+		Send, {Shift up} ; 模拟松开 Shift 键
+		return
+    }
+	if GetKeyState("Shift", "P")
+ 	{
+        togglewacom:=!togglewacom
+		ToolTip % "wacom独按模式" (togglewacom? "开" : "关")
+		if(togglewacom)
+		toggleswitch:=1
+		sleep 500 
+		ToolTip
+
+		return
+    }
+	else
+	{
+		if(toggleswitch)
+		{	
+			global xposr, yposr
+			WinGet, currentProcess, ProcessName, A
+
+			MouseGetPos, xpos, ypos
+			;ToolTip % xpos "," ypos currentProcess , 1920 , 1000
+			;sleep 500 
+		    ;ToolTip
+			if (currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
+			{
+				if(xpos=1920&&ypos=4)
+				{
+					
+					ScreenSwitch("toRight")
+				}
+				else
+				{
+					ScreenSwitch("toRightWacom")
+				}
+			}
+			else
+			{	
+				MouseGetPos, xposr, yposr
+				ScreenSwitch("toLeft")
+				
+			}
+			
+		}
+		else
+			    Click down  ; 模拟鼠标按下
+				KeyWait, Space  ; 等待空格键松开
+				Click up  ; 松开鼠标 
+	}
+	
+return
+
+
+~LButton::
+	global toggled
+	
+	if(toggleswitch)
+	{	
+		global toggled
+
+		WinGet, currentProcess, ProcessName, A
+		if(togglewacom && toggled)
+		{
+			ScreenSwitch("toRightWacom")
+			return
+		}
+		if (currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
+		{
+			
+			toggled:=1 
+			
+		}
+		else
+		{
+			toggled:=0
+			
+		}
+		if(togglewacom && toggled)
+		{
+			ScreenSwitch("toRightWacom")
+			return
+		}
+	} 
+	return
+	
+ScreenSwitch(f){
+	global toggled
+	if(f="toLeft")
+	{
+		Send ^!{F1}   ; 发送 Ctrl+Alt+F1
+		
+		
+		toggled:=1
+		MouseMove, 1, 0, 0, R  ; 向右移动 1 像素,激活左屏焦点
+		if(togglewacom)
+		{
+			;click
+		}
+		prints("左")
+		
+	}
+	if(f="toRight")
+	{
+	Send ^!{F2}   ; 发送 Ctrl+Alt+F2 
+	MouseMove, %xposr%, %yposr%, 0  ; 0 表示瞬间移动
+	
+		toggled:=0
+		prints("右")
+		
+	}
+	if(f="toRightWacom")
+	{
+		Send ^!{F2}   ; 发送 Ctrl+Alt+F2 
+		;click
+		toggled:=0
+		prints("右")
+		
+	}		
+	Send, {Ctrl up}  ; 模拟松开 Ctrl 键
+	Send, {Alt up}   ; 模拟松开 Alt 键
+	Send, {Shift up} ; 模拟松开 Shift 键
+	return
+}     
+
+
+
+
+
+prints(text) {
+    ToolTip, %text%,1920,1000
+    sleep,500
+	ToolTip
+	return
+}
+
+
+
+
+
 
 ; 直接将 Caps + 十个键映射为数字键
 CapsLock & Delete::Send, 1
@@ -18,7 +232,7 @@ CapsLock & PrintScreen::Send, 7
 CapsLock & ScrollLock::Send, 8
 CapsLock & Pause::Send, 9
 CapsLock & Rctrl::Send, 0
-CapsLock & Backspace::Send, 0
+;CapsLock & Backspace::Send, 0
 
 ; Caps + 方向键映射为加减乘除运算符
 CapsLock & Up::Send, {+}
@@ -45,12 +259,13 @@ Rshift & Backspace::Send, 0
 ; Caps + 方向键映射为加减乘除运算符
 Rshift & Up::Send, {+}
 Rshift & Down::Send, -
-Rshift & -::Send, -
+;Rshift & -::Send, -
 Rshift & Left::Send, *
-Rshift & Right::Send, /
+;Rshift & Right::Send, /
 Rshift & \::Send, *
 Rshift & AppsKey::Send, .
 
+/*
 ~`::  ; 按下 ` 键
     BlockInput, MouseMove  ; 禁止鼠标移动
     keyPressCount := 0  ; 初始化按键计数器
@@ -70,7 +285,7 @@ Rshift & AppsKey::Send, .
 
     BlockInput, MouseMoveOff  ; 解除鼠标禁用
 return
-
+*/
 
 
 getModStates()
@@ -92,16 +307,9 @@ getModStates()
     {
         ModState .= "#"
     }
+	
     return ModState
 }
-
-
-
-
-
-
-
-
 
 
 sendKeyWithModStates(Key)
@@ -151,7 +359,7 @@ CapsLock & o::
 sendKeyWithModStates("End")
 return
 
-CapsLock & `;::
+CapsLock & `;:: 
 sendKeyWithModStates("Backspace")
 return
 
@@ -180,7 +388,7 @@ Send !p  ; 发送 Alt+p
 
 return
    
-CapsLock & r:: ;全屏,隐藏标题栏
+CapsLock & f11:: ;全屏,隐藏标题栏
   WinGetPos, X, Y, Width, Height, A
 
   WinSet, Style, ^0xC00000, A
@@ -201,10 +409,13 @@ return
 CapsLock & n::_
 return
 
-CapsLock & m::+
+CapsLock & m::=
 return
 
-CapsLock & ,::-
+CapsLock & ,::
+send, {End}
+send, {,}
+send, {enter}
 return
 
 CapsLock & .::
@@ -214,15 +425,14 @@ return
 
 
 
-CapsLock & [::^z
-return
 
-CapsLock & ]::^+z
-return
+;CapsLock & [::^z
+;return
 
-CapsLock & Space::
-click
-return
+;CapsLock & ]::^+z
+;return
+
+
 
 
 
@@ -263,7 +473,36 @@ return
 return
 return
 
+!.::
+	send,>=
+	return
 
+!,::
+	send,<=
+	return
+
+!/::
+	send,/=
+	return
+
+!8::
+	send,*=
+	return
+
+!-::
+	send,-=
+	return
+
+!=::
+	send,{+}
+	send,=
+	return
+	
+!;::
+send, {End}
+send, :
+send, {enter}
+return
 
 !e:: ; Alt + e
 
@@ -328,11 +567,29 @@ Return
     return
 }
 
-CapsLock & p:: ;用来将免引号的检索后再用引号括起来(检索信号名称),或者说用来将内容双引号起来
+CapsLock & [:: ;用来将免引号的检索后再用引号括起来(检索信号名称),或者说用来将内容双引号起来
 Send, ^+{Left}
 Send "
 send, {right}
 return
+
+CapsLock & r::
+	Clipboard := ""
+    Send, ^c  ; 复制选中的文本
+    ClipWait, 10  ; 等待剪贴板更新
+    var := Trim(Clipboard)  ; 获取选中的内容并去掉前后空格
+	
+    ; 拼接 Python 风格的 print("var是%" %var)
+    Clipboard := "print(""<%s>[%s]:" . var . "是%s"" %[Engine.get_frames_drawn(),self.name," . var . "])"  ;print("var是%s" %var)
+	ClipWait, 10
+    ; 可选：显示构建后的字符串
+    ;ToolTip, %Clipboard%
+	ToolTip, 已复制%Clipboard%
+	sleep, 500
+	ToolTip
+    return
+
+
 
 #If
 
@@ -440,7 +697,7 @@ CapsLock & Lshift::  ; 监听 CapsLock + 左Shift
     DllCall("user32.dll\keybd_event", "UInt", 0xA1, "UInt", 0, "UInt", 0, "UInt", 0)  ; Right Shift Down
 
     ; 等待片刻，模拟按键按住的效果
-    Sleep 10
+    Sleep 1
 
     ; 释放右 Shift
     DllCall("user32.dll\keybd_event", "UInt", 0xA1, "UInt", 0, "UInt", 2, "UInt", 0)  ; Right Shift Up
@@ -459,6 +716,7 @@ CapsLock & T::
     Send ^v  ; 发送粘贴命令（Ctrl + V）
 return
 
+/*
 ;静音部分开始
 
 
@@ -586,8 +844,8 @@ VA_ISimpleAudioVolume_GetMute(this, ByRef Muted) {
     return DllCall(NumGet(NumGet(this+0)+6*A_PtrSize), "ptr", this, "int*", Muted)
 }
  ;静音部分结束
-
-
+;注释掉了
+*/
 
 
 
