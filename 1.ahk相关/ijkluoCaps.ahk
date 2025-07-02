@@ -17,25 +17,32 @@ sleep 300
 ToolTip
 
 
-lastKeyPressTime := 0  ; 记录上次按下的时间
 
-Backspace::
-Delete::
-{
-    currentTime := A_TickCount  ; 获取当前的时间（以毫秒为单位）
-    
-    if (currentTime - lastKeyPressTime < 10)  ; 如果上次按键与这次按键的间隔小于10毫秒
+
+; Variables to track last key press time
+global LastBackspaceTime := 0
+global LastDeleteTime := 0
+global DebounceDelay := 50 ; 50ms debounce time
+
+; Backspace key handler
+$Backspace::
+    CurrentTime := A_TickCount
+    if (CurrentTime - LastBackspaceTime > DebounceDelay)
     {
-        return  ; 忽略这次按下
+        Send {Backspace}
+        LastBackspaceTime := CurrentTime
     }
-    
-    ; 在这里添加按下Backspace或Delete后的逻辑
-    SendPlay, {Blind}{%A_ThisHotkey%}  ; 使用 Blind 模式发送按键（Blind 模式不会触发当前热键）
+return
 
-    lastKeyPressTime := currentTime  ; 更新最后一次按键的时
-    return
-}
-
+; Delete key handler
+$Delete::
+    CurrentTime := A_TickCount
+    if (CurrentTime - LastDeleteTime > DebounceDelay)
+    {
+        Send {Delete}
+        LastDeleteTime := CurrentTime
+    }
+return
 	
 CapsLock & ESC::
     ExitApp
