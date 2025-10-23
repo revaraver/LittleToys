@@ -1,0 +1,5 @@
+src/*.exe
+test/
+todo/
+
+src/utils/app-update/target/*

@@ -15,35 +15,94 @@ MouseGetPos, xposr, yposr
 ToolTip caps脚本启动,1920,1000
 sleep 300 
 ToolTip
-
-
-
-
-; Variables to track last key press time
 global LastBackspaceTime := 0
 global LastDeleteTime := 0
-global DebounceDelay := 50 ; 50ms debounce time
+global DebounceDelay := 120 ; 50ms debounce time
+
+; 检测系统从睡眠唤醒
+OnMessage(0x218, "OnPowerEvent") ; WM_POWERBROADCAST 消息
+OnPowerEvent(wParam, lParam) {
+    if (wParam = 7) { ; PBT_APMRESUMESUSPEND (系统从睡眠唤醒)
+        global toggleswitch, toggled, xposr, yposr
+        toggleswitch := 0
+        toggled := 0
+        xposr := 0
+        yposr := 0
+        ToolTip, 脚本已重置状态, 1920, 1000
+        SetTimer, RemoveToolTip, -2000
+		Send, {Ctrl up}  ; 模拟松开 Ctrl 键
+		Send, {Alt up}   ; 模拟松开 Alt 键
+		Send, {Shift up} ; 模拟松开 Shift 键
+    }
+    return 0
+}
+RemoveToolTip:
+    ToolTip
+return
+
+
+!`::
+WinMinimize, A
+
+return
+
+; Variables to track last key press time
+
 
 ; Backspace key handler
+
+;#已经用530洗好了
 $Backspace::
     CurrentTime := A_TickCount
-    if (CurrentTime - LastBackspaceTime > DebounceDelay)
+    ; 去抖处理：忽略短时间内重复触发
+    if (CurrentTime - LastBackspaceTime < DebounceDelay)
+        return
+
+    ; 记录当前时间
+    LastBackspaceTime := CurrentTime
+
+    ; 发送单次 Backspace
+    Send {Backspace}
+
+    ; 检查是否持续按住
+    KeyWait, Backspace, T0.5  ; 等待 500ms 判断是否松
+    if ErrorLevel  ; 如果仍在按住（ErrorLevel = 1）
     {
-        Send {Backspace}
-        LastBackspaceTime := CurrentTime
+        ; 进入长按模式，持续发送 Backspace
+        while GetKeyState("Backspace", "P")
+        {
+            Send {Backspace}
+            Sleep 31  ; 控制连续删除速度（可调整）
+        }
     }
 return
 
 ; Delete key handler
 $Delete::
     CurrentTime := A_TickCount
-    if (CurrentTime - LastDeleteTime > DebounceDelay)
+    ; 去抖处理：忽略短时间内重复触发
+    if (CurrentTime - LastDeleteTime < DebounceDelay)
+        return
+
+    ; 记录当前时间
+    LastDeleteTime := CurrentTime
+
+    ; 发送单次 Delete
+    Send {Delete}
+
+    ; 检查是否持续按住
+    KeyWait, Delete, T0.5  ; 等待 500ms 判断是否松
+    if ErrorLevel  ; 如果仍在按住（ErrorLevel = 1）
     {
-        Send {Delete}
-        LastDeleteTime := CurrentTime
+        ; 进入长按模式，持续发送 Delete
+        while GetKeyState("Delete", "P")
+        {
+            Send {Delete}
+            Sleep 31  ; 控制连续删除速度（可调整）
+        }
     }
 return
-	
+
 CapsLock & ESC::
     ExitApp
 return
@@ -52,7 +111,9 @@ CapsLock & F1::
     reload
 return
 
-
+Capslock & F12::
+    Run, "E:\sugarlose\github\LittleToys\1.ahk相关\gemini_api_updater.ahk" ; !!重要!! 请务必将这里的路径修改为你实际保存 gemini_api_updater.ahk 的路径
+Return
 
 CapsLock & F3::
 	KeyWait, F3,U  ; 等待 F3 抬起
@@ -86,13 +147,34 @@ CapsLock & F4::
     Sleep 200
 
     Send s              ; S 选择休眠/睡眠（取决于系统配置）
-    Sleep 1000          ; 等待操作完成或取消（视情况）
+    ;Sleep 1000          ; 等待操作完成或取消（视情况）
 
-    Send ^!{F2}         ; Ctrl+Alt+F2
-	DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
+    Send ^!{F2}         ; Ctrl+Alt+F2:
+	Sleep 200
+	
+	Send #x             ; Win+X
+    Sleep 300
+
+    Send u              ; U 进入关机菜单
+    Sleep 200
+
+    Send s              ; S 选择休眠/睡眠（取决于系统配置）
 	return
 
 ;用来改无界鼠标的  2025_06_29 21:13:58
+CapsLock & Alt::
+{
+	if(toggleswitch)
+	{
+		Click down  ; 模拟鼠标按下
+		KeyWait, Alt  ; 等待空格键松开
+		Click up  ; 松开鼠标 
+		
+	}
+	return
+}
+
+
 CapsLock & Space::
 	if GetKeyState("Ctrl", "P")
  	{
@@ -109,9 +191,11 @@ CapsLock & Space::
 		Send, {Ctrl up}  ; 模拟松开 Ctrl 键
 		Send, {Alt up}   ; 模拟松开 Alt 键
 		Send, {Shift up} ; 模拟松开 Shift 键
+		
+		
 		return
     }
-    
+
 	else
 	{
 		if(toggleswitch)
@@ -121,24 +205,30 @@ CapsLock & Space::
 
 			MouseGetPos, xpos, ypos
 			;ToolTip % xpos "," ypos currentProcess , 1920 , 1000
+			
 			;sleep 500 
 		    ;ToolTip
-			if (currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
+			;if (currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
+			;if ((xpos=1920 && ypos=4)||currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
+			if ((xpos=1920 && ypos=1080)||currentProcess = "PowerToys.MouseWithoutBordersHelper.exe")
 			{
 				ScreenSwitch("toRight")
+				Send, {CapsLock up}
 			}
 			else
 			{	
 				MouseGetPos, xposr, yposr
 				ScreenSwitch("toLeft")
-				
+				Send, {CapsLock up}
 			}
 			
 		}
 		else
+		{
 			    Click down  ; 模拟鼠标按下
 				KeyWait, Space  ; 等待空格键松开
 				Click up  ; 松开鼠标 
+		}
 	}
 	
 return
@@ -146,7 +236,7 @@ return
 
 	
 ScreenSwitch(f){
-	global toggled
+
 	if(f="toLeft")
 	{
 		Send ^!{F1}   ; 发送 Ctrl+Alt+F1
@@ -159,6 +249,7 @@ ScreenSwitch(f){
 			;click
 		}
 		prints("左")
+		return
 		
 	}
 	if(f="toRight")
@@ -167,13 +258,15 @@ ScreenSwitch(f){
 		MouseMove, %xposr%, %yposr%, 0  ; 0 表示瞬间移动
 		toggled:=0
 		prints("右")
+		return
 	}
 
 		
 			
-	Send, {Ctrl up}  ; 模拟松开 Ctrl 键
-	Send, {Alt up}   ; 模拟松开 Alt 键
-	Send, {Shift up} ; 模拟松开 Shift 键
+	;Send, {Ctrl up}  ; 模拟松开 Ctrl 键
+	;Send, {Alt up}   ; 模拟松开 Alt 键
+	;Send, {Shift up} ; 模拟松开 Shift 键
+	;Send, {CapsLock up}
 	return
 }     
 
@@ -232,7 +325,7 @@ Rshift & Backspace::Send, 0
 Rshift & Up::Send, {+}
 Rshift & Down::Send, -
 ;Rshift & -::Send, -
-Rshift & Left::Send, *
+;Rshift & Left::Send, *
 ;Rshift & Right::Send, /
 Rshift & \::Send, *
 Rshift & AppsKey::Send, .
@@ -433,6 +526,7 @@ return
 ;	send, {tab}
 ;return
 
+/*
 !w:: ; Alt + w
     Send "{RButton}"  ; 发送鼠标右键
 	Sleep, 1
@@ -443,6 +537,7 @@ return
     ; 切换到名为 "Cursor" 的窗口
     WinActivate, ahk_exe Cursor.exe ; 替换 Cursor.exe 为实际目标窗口的进程名
 return
+*/
 return
 
 !.::
@@ -476,11 +571,13 @@ send, :
 send, {enter}
 return
 
+/*
 !e:: ; Alt + e
 
     ; 切换到名为 "Cursor" 的窗口
     WinActivate, ahk_exe Cursor.exe ; 替换 Cursor.exe 为实际目标窗口的进程名
 return
+*/
 
 CapsLock & c::
     SendInput, ^+c
@@ -503,6 +600,7 @@ CapsLock & c::
     SendInput, ^v
     
 Return
+
 
 CapsLock & v::
      ; 切换到场景树面板
@@ -568,6 +666,22 @@ CapsLock & r::
 
 #If WinActive("ahk_exe Cursor.exe")
 
+CapsLock & r::
+	Clipboard := ""
+    Send, ^c  ; 复制选中的文本
+    ClipWait, 10  ; 等待剪贴板更新
+    var := Trim(Clipboard)  ; 获取选中的内容并去掉前后空格
+	
+    ; 拼接 Python 风格的 print("var是%" %var)
+    Clipboard := "print(""<%s>[%s]:" . var . "是%s"" %[Engine.get_frames_drawn(),self.name," . var . "])"  ;print("var是%s" %var)
+	ClipWait, 10
+    ; 可选：显示构建后的字符串
+    ;ToolTip, %Clipboard%
+	ToolTip, 已复制%Clipboard%
+	sleep, 500
+	ToolTip
+    return
+
 F5:: ;Cursor中的f5切程序运行
 {
 	Send, ^s
@@ -601,7 +715,18 @@ F6:: ;Cursor中的f6切程序运行
 return
 #If
 
-
+#v::
+        ; 弹出输入框，获取用户输入
+        InputBox, userInput,输入, , , 200, 100
+        
+        ; 检查用户是否点击了取消
+        if ErrorLevel
+            return  ; 如果取消输入，直接退出
+        
+        ; 将用户输入的内容复制到剪贴板
+        Clipboard := userInput
+        Send ^v
+		return
 
 
 CapsLock & v:: ; CapsLock+V
@@ -623,6 +748,19 @@ CapsLock & v:: ; CapsLock+V
     }
 	;aseprite中输入中文
 	IfWinActive, ahk_exe aseprite.exe
+    {
+        ; 弹出输入框，获取用户输入
+        InputBox, userInput,输入, , , 200, 100
+        
+        ; 检查用户是否点击了取消
+        if ErrorLevel
+            return  ; 如果取消输入，直接退出
+        
+        ; 将用户输入的内容复制到剪贴板
+        Clipboard := userInput
+        Send ^v
+    }
+		IfWinActive, ahk_exe blender.exe
     {
         ; 弹出输入框，获取用户输入
         InputBox, userInput,输入, , , 200, 100
