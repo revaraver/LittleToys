@@ -137,7 +137,8 @@ fn_restart(*) {
 
 fn_create_shortcut(*) {
     if (isStartUp = 1) {
-        FileCreateShortcut("C:\WINDOWS\system32\schtasks.exe", A_Desktop "\" fileLnk, , "/run /tn `"abgox.InputTip.noUAC`"", fileDesc, favicon, , , 7)
+        FileCreateShortcut("C:\WINDOWS\system32\schtasks.exe", A_Desktop "\" fileLnk, ,
+            "/run /tn `"abgox.InputTip.noUAC`"", fileDesc, favicon, , , 7)
     } else {
         if (A_IsCompiled) {
             FileCreateShortcut(A_ScriptFullPath, A_Desktop "\" fileLnk, , , fileDesc, favicon, , , 7)
@@ -176,7 +177,9 @@ fn_update_user(uname, *) {
         g.AddText("xs ReadOnly cGray", "请自行检查，确保用户名无误后，点击右上角的 × 直接关闭此窗口即可").Focus()
 
         tab.UseTab(2)
-        g.AddEdit("ReadOnly r6 w" bw, "1. 简要说明`n   - 这个菜单用来设置用户名信息`n   - 如果是域用户，在填写时还需要添加域，参考以下格式`n      - DOMAIN\Username`n      - Username@domain.com`n   - 如果用户名信息有误，以下功能可能会失效`n      - 【开机自启动】中的 【任务计划程序】`n      - 【其他设置】中的【JAB/JetBrains IDE 支持】")
+        g.AddEdit("ReadOnly r6 w" bw,
+            "1. 简要说明`n   - 这个菜单用来设置用户名信息`n   - 如果是域用户，在填写时还需要添加域，参考以下格式`n      - DOMAIN\Username`n      - Username@domain.com`n   - 如果用户名信息有误，以下功能可能会失效`n      - 【开机自启动】中的 【任务计划程序】`n      - 【其他设置】中的【JAB/JetBrains IDE 支持】"
+        )
 
         g.OnEvent("Close", e_close)
         e_close(*) {
@@ -187,14 +190,16 @@ fn_update_user(uname, *) {
                         createScheduleTask(A_ScriptFullPath, "abgox.InputTip.noUAC", [0], , , 1)
                     }
                     if (enableJABSupport) {
-                        createScheduleTask(A_ScriptDir "\InputTip.JAB.JetBrains.exe", "abgox.InputTip.JAB.JetBrains", , "Limited")
+                        createScheduleTask(A_ScriptDir "\InputTip.JAB.JetBrains.exe", "abgox.InputTip.JAB.JetBrains", ,
+                            "Limited")
                     }
                 } else {
                     if (isStartUp = 1) {
                         createScheduleTask(A_AhkPath, "abgox.InputTip.noUAC", [A_ScriptFullPath, 0], , , 1)
                     }
                     if (enableJABSupport) {
-                        createScheduleTask(A_AhkPath, "abgox.InputTip.JAB.JetBrains", [A_ScriptDir "\InputTip.JAB.JetBrains.ahk"], "Limited")
+                        createScheduleTask(A_AhkPath, "abgox.InputTip.JAB.JetBrains", [A_ScriptDir "\InputTip.JAB.JetBrains.ahk"],
+                        "Limited")
                     }
                 }
             }
@@ -302,7 +307,8 @@ fn_common(args, cb_updateVar) {
 
             LV := "LV_" A_Now
 
-            gc.%LV% := g.AddListView("xs -LV0x10 -Multi r9 NoSortHdr Sort Grid w" w, ["进程名称", "匹配范围", "匹配模式", "匹配标题", "创建时间"])
+            gc.%LV% := g.AddListView("xs -LV0x10 -Multi r9 NoSortHdr Sort Grid w" w, ["进程名称", "匹配范围", "匹配模式", "匹配标题",
+                "创建时间"])
 
             gc.%LV%.Opt("-Redraw")
             valueArr := StrSplit(readIniSection(args.config), "`n")
@@ -362,7 +368,6 @@ fn_common(args, cb_updateVar) {
                 }
                 fn_edit(gc.%item._LV%, 1, "add", itemValue).Show()
             }
-
 
             handleClick(LV, RowNumber) {
                 if (!RowNumber) {
@@ -485,9 +490,11 @@ fn_common(args, cb_updateVar) {
                         ; 没有进行移动
                         writeIni(itemValue.id, value, itemValue.configName, "InputTip.ini")
                         if (action == "edit") {
-                            LV.Modify(RowNumber, , itemValue.exe_name, itemValue.tipGlobal, itemValue.tipRegex, itemValue.title, itemValue.id)
+                            LV.Modify(RowNumber, , itemValue.exe_name, itemValue.tipGlobal, itemValue.tipRegex,
+                                itemValue.title, itemValue.id)
                         } else {
-                            LV.Insert(RowNumber, , itemValue.exe_name, itemValue.tipGlobal, itemValue.tipRegex, itemValue.title, itemValue.id)
+                            LV.Insert(RowNumber, , itemValue.exe_name, itemValue.tipGlobal, itemValue.tipRegex,
+                                itemValue.title, itemValue.id)
                         }
 
                         if (needAddWhiteList) {
@@ -540,13 +547,13 @@ fn_common(args, cb_updateVar) {
                 }
             }
             tab.UseTab(2)
-            g.AddEdit("Section r13 w" w, "1. 简要说明`n   - 这个菜单用来配置【" args.tab "】的匹配规则`n   - 下方是对应的规则列表`n   - 双击列表中的任意一行，进行编辑或删除`n   - 如果需要添加，请查看下方按钮相关的使用说明`n`n2. 规则列表 —— 进程名称`n   - 应用窗口实际的进程名称`n`n3. 规则列表 —— 匹配范围`n   - 【进程级】或【标题级】`n   - 【进程级】: 只要在这个进程中时，就会触发`n   - 【标题级】: 只有在这个进程中，且标题匹配成功时，才会触发`n`n4. 规则列表 —— 匹配模式`n   - 只有当匹配范围为【标题级】时，才会生效`n   - 【相等】或【正则】，它控制标题匹配的模式`n   - 【相等】: 只有窗口标题和指定的标题完全一致，才会触发`n   - 【正则】: 使用正则表达式匹配标题，匹配成功才会触发`n`n5. 规则列表 —— 匹配标题`n   - 只有当匹配范围为【标题级】时，才会生效`n   - 指定一个标题或者正则表达式，与【匹配模式】相对应`n   - 如果不知道当前窗口的相关信息(进程/标题等)，可以通过以下方式获取`n      - 【托盘菜单】=>【获取窗口信息】`n`n6. 规则列表 —— 创建时间`n   - 它是每条规则的创建时间`n`n7. 规则列表 —— 操作`n   - 双击列表中的任意一行，进行编辑或删除`n`n8. 按钮 —— 快捷添加`n   - 点击它，可以添加一条新的规则`n   - 它会弹出一个新的菜单页面，会显示当前正在运行的【应用进程列表】`n   - 你可以双击【应用进程列表】中的任意一行进行快速添加`n   - 详细的使用说明请参考弹出的菜单页面中的【关于】`n`n9. 按钮 —— 手动添加`n   - 点击它，可以添加一条新的规则`n   - 它会直接弹出添加窗口，你需要手动填写进程名称、标题等信息")
+            g.AddEdit("Section r13 w" w, "1. 简要说明`n   - 这个菜单用来配置【" args.tab "】的匹配规则`n   - 下方是对应的规则列表`n   - 双击列表中的任意一行，进行编辑或删除`n   - 如果需要添加，请查看下方按钮相关的使用说明`n`n2. 规则列表 —— 进程名称`n   - 应用窗口实际的进程名称`n`n3. 规则列表 —— 匹配范围`n   - 【进程级】或【标题级】`n   - 【进程级】: 只要在这个进程中时，就会触发`n   - 【标题级】: 只有在这个进程中，且标题匹配成功时，才会触发`n`n4. 规则列表 —— 匹配模式`n   - 只有当匹配范围为【标题级】时，才会生效`n   - 【相等】或【正则】，它控制标题匹配的模式`n   - 【相等】: 只有窗口标题和指定的标题完全一致，才会触发`n   - 【正则】: 使用正则表达式匹配标题，匹配成功才会触发`n`n5. 规则列表 —— 匹配标题`n   - 只有当匹配范围为【标题级】时，才会生效`n   - 指定一个标题或者正则表达式，与【匹配模式】相对应`n   - 如果不知道当前窗口的相关信息(进程/标题等)，可以通过以下方式获取`n      - 【托盘菜单】=>【获取窗口信息】`n`n6. 规则列表 —— 创建时间`n   - 它是每条规则的创建时间`n`n7. 规则列表 —— 操作`n   - 双击列表中的任意一行，进行编辑或删除`n`n8. 按钮 —— 快捷添加`n   - 点击它，可以添加一条新的规则`n   - 它会弹出一个新的菜单页面，会显示当前正在运行的【应用进程列表】`n   - 你可以双击【应用进程列表】中的任意一行进行快速添加`n   - 详细的使用说明请参考弹出的菜单页面中的【关于】`n`n9. 按钮 —— 手动添加`n   - 点击它，可以添加一条新的规则`n   - 它会直接弹出添加窗口，你需要手动填写进程名称、标题等信息"
+            )
             g.AddLink(, args.link)
             return g
         }
     }
 }
-
 
 fn_white_list(*) {
     fn_common({
@@ -569,7 +576,7 @@ getCursorDir() {
     dirList := ":InputTipCursor\default\oreo-red:InputTipCursor\default\oreo-blue:InputTipCursor\default\oreo-green:"
     loopDir("InputTipCursor")
     loopDir(path) {
-        Loop Files path "\*", "DR" {
+        loop files path "\*", "DR" {
             if (A_LoopFileAttrib ~= "D") {
                 loopDir A_LoopFilePath
                 if (!hasChildDir(A_LoopFilePath)) {
@@ -594,7 +601,7 @@ getCursorDir() {
  */
 getPicList(picDir, topList := "") {
     picList := topList ? topList : ":"
-    Loop Files picDir "\*", "R" {
+    loop files picDir "\*", "R" {
         if (A_LoopFileExt = "png" && !InStr(picList, ":" A_LoopFilePath ":")) {
             picList .= A_LoopFilePath ":"
         }
@@ -610,8 +617,7 @@ getPicList(picDir, topList := "") {
 getFontList() {
     list := []
     for v in ["HKEY_CURRENT_USER", "HKEY_LOCAL_MACHINE"] {
-        loop reg v "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts"
-        {
+        loop reg v "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts" {
             ; 去除注册表项中的括号及后缀（如 "(TrueType)"）
             list.Push(RegExReplace(A_LoopRegName, "\s*\(.*?\)$", ""))
         }
@@ -669,7 +675,8 @@ runJAB() {
         SetTimer(runAppTimer1, -1)
         runAppTimer1() {
             try {
-                createScheduleTask(A_ScriptDir "\InputTip.JAB.JetBrains.exe", "abgox.InputTip.JAB.JetBrains", , "Limited", 1)
+                createScheduleTask(A_ScriptDir "\InputTip.JAB.JetBrains.exe", "abgox.InputTip.JAB.JetBrains", ,
+                    "Limited", 1)
                 Run('schtasks /run /tn "abgox.InputTip.JAB.JetBrains"', , "Hide")
             }
         }
@@ -677,7 +684,8 @@ runJAB() {
         SetTimer(runAppTimer2, -1)
         runAppTimer2() {
             try {
-                createScheduleTask(A_AhkPath, "abgox.InputTip.JAB.JetBrains", [A_ScriptDir "\InputTip.JAB.JetBrains.ahk"], "Limited", 1)
+                createScheduleTask(A_AhkPath, "abgox.InputTip.JAB.JetBrains", [A_ScriptDir "\InputTip.JAB.JetBrains.ahk"],
+                "Limited", 1)
                 Run('schtasks /run /tn "abgox.InputTip.JAB.JetBrains"', , "Hide")
             }
         }
@@ -687,7 +695,6 @@ runJAB() {
     }
     return 0
 }
-
 
 ; 显示实时的状态码和切换码
 showCode(*) {
@@ -704,7 +711,7 @@ showCode(*) {
         gc.status_btn.Text := "停止显示实时的状态码和切换码(双击设置快捷键)"
     }
 
-    SetTimer(statusTimer, 25)
+    SetTimer(statusTimer, 500)
     statusTimer() {
         if (!gc.timer) {
             ToolTip()
@@ -712,8 +719,25 @@ showCode(*) {
             return
         }
 
-        info := IME.CheckInputMode()
-        ToolTip("状态码: " info.statusMode "`n切换码: " info.conversionMode)
+        hwnd := IME.GetFocusedWindow()
+        fullInfo := IME.GetFullImeInfo(6, 6, hwnd) ; Test codes 1-5
+        layout := IME.GetKeyboardLayout(hwnd)
+        capsState := GetKeyState("CapsLock", "T") ? "开" : "关"
+
+        tooltipText := "布局: " Format("{:08x}", layout) . " | Caps: " capsState "`n--------------------`n"
+
+        for code, val in fullInfo {
+            ; Highlight the ones we know
+            if (code = 1) {
+                tooltipText .= "切换码(1): " val "`n"
+            } else if (code = 5) {
+                tooltipText .= "状态码(5): " val "`n"
+            } else {
+                tooltipText .= "Code " code ": " val "`n"
+            }
+        }
+
+        ToolTip(tooltipText)
     }
 }
 
@@ -757,7 +781,8 @@ createProcessListGui(args, cb_addClick, cb_addManual := "") {
 
                 g.AddText("Section cRed", gui_help_tip)
 
-                gc.LV_processList := g.AddListView("-LV0x10 -Multi r7 NoSortHdr Sort Grid w" w, ["进程名称", "来源", "窗口标题", "文件路径"])
+                gc.LV_processList := g.AddListView("-LV0x10 -Multi r7 NoSortHdr Sort Grid w" w, ["进程名称", "来源", "窗口标题",
+                    "文件路径"])
 
                 gc.LV_processList.OnEvent("DoubleClick", e_click_add)
                 e_click_add(LV, RowNumber, *) {
@@ -784,7 +809,8 @@ createProcessListGui(args, cb_addClick, cb_addManual := "") {
                         exe_name := ProcessGetName(WinGetPID("ahk_id " v))
                         if (!InStr(res, ":" exe_name ":")) {
                             res .= exe_name ":"
-                            gc.LV_processList.Add(, exe_name, "系统", WinGetTitle("ahk_id " v), WinGetProcessPath("ahk_id " v))
+                            gc.LV_processList.Add(, exe_name, "系统", WinGetTitle("ahk_id " v), WinGetProcessPath(
+                                "ahk_id " v))
                         }
                     }
                 }
@@ -838,7 +864,9 @@ createProcessListGui(args, cb_addClick, cb_addManual := "") {
                     }
                 }
                 tab.UseTab(2)
-                g.AddEdit("ReadOnly VScroll r12 w" w, "1. 简要说明`n   - 这个菜单中显示的是所有正在运行的【应用进程列表】`n   - 整个列表根据【进程名称】的首字母进行排序`n   - 双击列表中的任意一行，即可添加对应的这个应用进程`n`n2. 应用进程列表 —— 进程名称`n   - 应用程序实际运行的进程名称`n   - 如果不清楚是哪个应用的进程，可能需要通过【窗口标题】、【文件路径】来判断`n   - 或者使用第 6 点的技巧`n`n3. 应用进程列表 —— 来源`n   - 【系统】表明这个进程是从系统中获取的，它正在运行`n   - 【白名单】表明这个进程是存在于白名单中的，为了方便操作，被添加到列表中`n`n4. 应用进程列表 —— 窗口标题`n   - 这个应用进程所显示的窗口的标题`n   - 你可能需要通过它来判断这是哪一个应用的进程`n`n5. 应用进程列表 —— 文件路径`n   - 这个应用进程的可执行文件的所在路径`n   - 你可能需要通过它来判断这是哪一个应用的进程`n`n6. 技巧 —— 获取当前窗口的实时的相关进程信息`n   - 你可以使用【托盘菜单】中的【获取窗口信息】`n   - 它会实时获取当前聚焦的窗口的【进程名称】【窗口标题】【进程路径】`n`n7. 按钮 —— 刷新此界面`n   - 因为列表中显示的是当前正在运行的应用进程`n   - 如果你是先打开这个配置菜单，再打开对应的应用，它不会显示在这里`n   - 你需要重新打开这个配置菜单，或者点击这个按钮进行刷新`n`n8. 按钮 —— 显示更多进程`n   - 默认情况下，【应用进程列表】中显示的是前台应用进程，就是有窗口的应用进程`n   - 你可以点击它来显示更多的进程，比如后台进程`n`n9. 按钮 —— 显示更少进程`n   - 当你点击【显示更多进程】按钮后，会出现这个按钮`n   - 点击它又会重新显示前台应用进程")
+                g.AddEdit("ReadOnly VScroll r12 w" w,
+                    "1. 简要说明`n   - 这个菜单中显示的是所有正在运行的【应用进程列表】`n   - 整个列表根据【进程名称】的首字母进行排序`n   - 双击列表中的任意一行，即可添加对应的这个应用进程`n`n2. 应用进程列表 —— 进程名称`n   - 应用程序实际运行的进程名称`n   - 如果不清楚是哪个应用的进程，可能需要通过【窗口标题】、【文件路径】来判断`n   - 或者使用第 6 点的技巧`n`n3. 应用进程列表 —— 来源`n   - 【系统】表明这个进程是从系统中获取的，它正在运行`n   - 【白名单】表明这个进程是存在于白名单中的，为了方便操作，被添加到列表中`n`n4. 应用进程列表 —— 窗口标题`n   - 这个应用进程所显示的窗口的标题`n   - 你可能需要通过它来判断这是哪一个应用的进程`n`n5. 应用进程列表 —— 文件路径`n   - 这个应用进程的可执行文件的所在路径`n   - 你可能需要通过它来判断这是哪一个应用的进程`n`n6. 技巧 —— 获取当前窗口的实时的相关进程信息`n   - 你可以使用【托盘菜单】中的【获取窗口信息】`n   - 它会实时获取当前聚焦的窗口的【进程名称】【窗口标题】【进程路径】`n`n7. 按钮 —— 刷新此界面`n   - 因为列表中显示的是当前正在运行的应用进程`n   - 如果你是先打开这个配置菜单，再打开对应的应用，它不会显示在这里`n   - 你需要重新打开这个配置菜单，或者点击这个按钮进行刷新`n`n8. 按钮 —— 显示更多进程`n   - 默认情况下，【应用进程列表】中显示的是前台应用进程，就是有窗口的应用进程`n   - 你可以点击它来显示更多的进程，比如后台进程`n`n9. 按钮 —— 显示更少进程`n   - 当你点击【显示更多进程】按钮后，会出现这个按钮`n   - 点击它又会重新显示前台应用进程"
+                )
                 return g
             }
             return showGui()

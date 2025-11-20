@@ -4,5 +4,6 @@
   },
   "AutoHotkey2.InterpreterPath": "src\\AutoHotkey\\AutoHotkey64.exe",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "files.autoReload": "onFocusChange"
 }

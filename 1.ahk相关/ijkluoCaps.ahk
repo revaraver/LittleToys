@@ -470,6 +470,8 @@ CapsLock & f::(
 CapsLock & h::)
 return
 
+CapsLock & b::+
+return
 
 CapsLock & n::_
 return
@@ -649,8 +651,17 @@ CapsLock & r::
     ClipWait, 10  ; 等待剪贴板更新
     var := Trim(Clipboard)  ; 获取选中的内容并去掉前后空格
 	
-    ; 拼接 Python 风格的 print("var是%" %var)
-    Clipboard := "print(""<%s>[%s]:" . var . "是%s"" %[Engine.get_frames_drawn(),self.name," . var . "])"  ;print("var是%s" %var)
+    ; ----------------------------------------------------
+    ; 【最小化修改】
+    ; 1. 创建一个副本，专门用于字符串显示
+    display_var := var
+    ; 2. 只对这个副本进行净化处理
+    StringReplace, display_var, display_var, ", \", All
+    ; ----------------------------------------------------
+    
+    ; 在拼接时，字符串部分用 display_var，参数部分用原始的 var
+    Clipboard := "print(""<%s>[%s]:" . display_var . "是%s"" %[Engine.get_frames_drawn(),self.name," . var . "])"
+	
 	ClipWait, 10
     ; 可选：显示构建后的字符串
     ;ToolTip, %Clipboard%

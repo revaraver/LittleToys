@@ -110,12 +110,7 @@ class IME {
     }
 
     static GetOpenStatus(hwnd := this.GetFocusedWindow()) {
-        try {
-            DllCall("SendMessageTimeoutW", "ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "ptr", hwnd, "ptr"), "uint", 0x283, "ptr", 0x5, "ptr", 0, "uint", 0, "uint", checkTimeout, "ptr*", &status := 0)
-            return status
-        } catch {
-            return 0
-        }
+        return this.GetImeInfo(0x5, hwnd)
     }
 
     static SetOpenStatus(status, hwnd := this.GetFocusedWindow()) {
@@ -125,18 +120,32 @@ class IME {
     }
 
     static GetConversionMode(hwnd := this.GetFocusedWindow()) {
-        try {
-            DllCall("SendMessageTimeoutW", "ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "ptr", hwnd, "ptr"), "uint", 0x283, "ptr", 0x1, "ptr", 0, "uint", 0, "uint", checkTimeout, "ptr*", &mode := 0)
-            return mode
-        } catch {
-            return 0
-        }
+        return this.GetImeInfo(0x1, hwnd)
     }
 
     static SetConversionMode(mode, hwnd := this.GetFocusedWindow()) {
         try {
             DllCall("SendMessageTimeoutW", "ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "ptr", hwnd, "ptr"), "uint", 0x283, "ptr", 0x2, "ptr", mode, "uint", 0, "uint", checkTimeout, "ptr*", 0)
         }
+    }
+
+    static GetImeInfo(wParam, hwnd := this.GetFocusedWindow()) {
+        try {
+            DllCall("SendMessageTimeoutW", "ptr", DllCall("imm32\ImmGetDefaultIMEWnd", "ptr", hwnd, "ptr"), "uint", 0x283, "ptr", wParam, "ptr", 0, "uint", 0, "uint", checkTimeout, "ptr*", &result := 0)
+            return result
+        } catch {
+            return 0
+        }
+    }
+
+    static GetFullImeInfo(startCode := 1, endCode := 15, hwnd := this.GetFocusedWindow()) {
+        result := Map()
+        Loop (endCode - startCode + 1) {
+            currentCode := startCode + A_Index - 1
+            result[currentCode] := this.GetImeInfo(currentCode, hwnd)
+            Sleep(20)
+        }
+        return result
     }
 
     static GetKeyboardLayout(hwnd := this.GetFocusedWindow()) {
