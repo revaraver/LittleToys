@@ -2,7 +2,13 @@
 patch:
   # （按需选择）清空 preedit_format 中的内容，输入时显示双拼编码
   # translator/preedit_format: []
-  "translator/preedit_format":
-  - "xform/(?<=[a-z])\\s(?=[a-z])//"
+  # "translator/preedit_format":
+  # - "xform/(?<=[a-z])\\s(?=[a-z])//"
+  "user_db/sync_interval": 600  # 设置同步间隔为600秒（10分钟）
+  "user_db/sync_by_os": false   # 关闭由操作系统管理的即时写入
+  "user_db/db_class": stabledb
 
-  
+
+
+
+
