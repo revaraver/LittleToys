@@ -1,4 +1,4 @@
-; 逐渐丰满的caps脚本
+﻿; 逐渐丰满的caps脚本
 ; 用win+caps切换caps状态
 
 ;#NoTrayIcon
